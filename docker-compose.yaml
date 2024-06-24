@@ -1,0 +1,11 @@
+version: "3.11"
+services:
+  postgres_app:
+    image: postgres:alpine
+    container_name: ${POSTGRES_HOST}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    env_file:
+      - .env
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
