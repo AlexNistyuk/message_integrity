@@ -103,6 +103,17 @@ files = [
 license = ["ukkonen"]
 
 [[package]]
+name = "imap-tools"
+version = "1.6.0"
+description = "Work with email by IMAP"
+optional = false
+python-versions = "*"
+files = [
+    {file = "imap-tools-1.6.0.tar.gz", hash = "sha256:1fc97a06a35e18a6d0e775d40b18198f52dae0fa46ee8b6fc6f82dbc7a701699"},
+    {file = "imap_tools-1.6.0-py3-none-any.whl", hash = "sha256:6f6a354a6bb95ab83a24d3321d1a8b62b299ba76ba5774e9f45f0ad2544f093b"},
+]
+
+[[package]]
 name = "nodeenv"
 version = "1.9.1"
 description = "Node.js virtual environment builder"
@@ -337,4 +348,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "103b87e62a4c19cf98118f80a86cba2e78e90c2eec996150ea8a9dc48473cba7"
+content-hash = "501d43ae01b9502e16c8a4fa2e0bff39c8c0a9490d26a71b4081e6ead07cc465"
