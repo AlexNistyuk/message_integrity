@@ -1,8 +1,7 @@
 from typing import Self
 
+from application.services.interface import ImapServiceABC
 from imap_tools import MailBox
-
-from message_integrity.application.services.interface import ImapServiceABC
 
 
 class ImapServiceBase(ImapServiceABC):

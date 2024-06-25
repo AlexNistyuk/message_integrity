@@ -1,9 +1,9 @@
-from message_integrity.application.factories.interface import ImapFactoryABC
-from message_integrity.application.services.gmail import GmailImapService
-from message_integrity.application.services.interface import ImapServiceABC
-from message_integrity.application.services.mail import MailImapService
-from message_integrity.application.services.yandex import YandexImapService
-from message_integrity.domain.enums.emails import EmailType
+from application.factories.interface import ImapFactoryABC
+from application.services.gmail import GmailImapService
+from application.services.interface import ImapServiceABC
+from application.services.mail import MailImapService
+from application.services.yandex import YandexImapService
+from domain.enums.emails import EmailType
 
 
 class ImapFactory(ImapFactoryABC):
