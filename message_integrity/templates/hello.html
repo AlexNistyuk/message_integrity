@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home page</title>
+</head>
+<body>
+    <form action="/api/v1/users/" method="post">
+        <input class="email" name="email" placeholder="Enter email"/>
+        <input class="password" type="password" name="password" placeholder="Enter password"/>
+        <select name="email_type" id="email_type_select">
+            {% for choice in choices %}
+                <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

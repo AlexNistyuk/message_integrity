@@ -1,8 +1,16 @@
-from application.use_cases.users import UserUseCase
-from rest_framework import mixins, status, viewsets
-from rest_framework.response import Response
+from application.use_cases.users.users import UserUseCase
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from domain.enums.emails import EmailType
+from rest_framework import mixins, viewsets
 from users.models import User
 from users.serializers import UserRegisterSerializer
+
+
+def home_page(request):
+    email_type_choices = [choice.value for choice in EmailType]
+
+    return render(request, "hello.html", {"choices": email_type_choices})
 
 
 class UserViewSet(
@@ -23,7 +31,6 @@ class UserViewSet(
 
         user = UserUseCase().register(serializer.validated_data)
 
-        data = self.get_serializer(user).data
-        data["email_type"] = data["email_type"].value
+        url_redirect = reverse("mails", args=(user.pk,))
 
-        return Response(data, status=status.HTTP_201_CREATED)
+        return redirect(url_redirect, permanent=True)

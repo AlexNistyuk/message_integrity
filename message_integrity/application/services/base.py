@@ -1,40 +1,45 @@
 from typing import Self
 
+from aioimaplib import IMAP4_SSL, aioimaplib
 from application.services.interface import ImapServiceABC
-from imap_tools import MailBox
 
 
 class ImapServiceBase(ImapServiceABC):
     host: str
-    username: str
+    email: str
     password: str
     initial_folder: str
+    imap_client: IMAP4_SSL
 
-    def login(
-        self, username: str, password: str, initial_folder: str = "INBOX"
-    ) -> Self:
-        self.username = username
+    def login(self, email: str, password: str, initial_folder: str = "INBOX") -> Self:
+        self.email = email
         self.password = password
         self.initial_folder = initial_folder
 
         return self
 
-    def __enter__(
+    async def __aenter__(
         self,
     ) -> Self:
         # TODO catch error while creating connection!
-        self.__mailbox = (
-            MailBox(self.host)
-            .login(self.username, self.password, self.initial_folder)
-            .__enter__()
-        )
+
+        self.imap_client = aioimaplib.IMAP4_SSL(host=self.host)
+        await self.imap_client.wait_hello_from_server()
+        await self.imap_client.login(self.email, self.password)
+        await self.imap_client.select(self.initial_folder)
 
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.__mailbox.__exit__(exc_type, exc_val, exc_tb)
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        await self.imap_client.logout()
 
-    def get_new_mails(self, handled_mails_count: int):
-        slice_obj = slice(handled_mails_count, stop=None)
+    async def get_mails_uids(self) -> set[str]:
+        response = await self.imap_client.fetch("1:*", "UID")
 
-        self.__mailbox.fetch(limit=slice_obj)
+        uids = set()
+        for item in response.lines[:-1]:
+            uid = item.decode().split()[-1].replace(")", "")
+
+            uids.add(uid)
+
+        return uids

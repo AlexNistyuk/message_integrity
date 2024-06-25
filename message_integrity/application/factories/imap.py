@@ -13,5 +13,6 @@ class ImapFactory(ImapFactoryABC):
         EmailType.MAIL.value: MailImapService(),
     }
 
-    def get_service_by_email_type(self, email_type: EmailType) -> ImapServiceABC | None:
-        return self.__service_map.get(email_type.value)
+    @classmethod
+    def get_service_by_email_type(cls, email_type: str) -> ImapServiceABC | None:
+        return cls.__service_map.get(email_type)

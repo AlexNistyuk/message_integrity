@@ -14,12 +14,3 @@ class User(AbstractBaseUser):
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["password", "email_type"]
-
-
-class EmailMessage(models.Model):
-    subject = models.CharField(max_length=100, null=False)
-    sent_date = models.DateTimeField()
-    received_date = models.DateTimeField()
-    text = models.TextField(max_length=1000, null=True)
-
-    # TODO add "Поле для хранения списка прикреплённых файлов к письму"
