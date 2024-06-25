@@ -6,9 +6,28 @@
     <meta charset="UTF-8">
     <title>Messages</title>
     <script src="{% static 'js/mails.js' %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/mails.css' %}"/>
 </head>
 <body>
-    <div id="text">Connecting...</div>
-    <progress id="progress-bar"></progress>
+    <div id="check-emails-text">Connecting...</div>
+    <progress id="check-mails-progress-bar"></progress>
+
+    <div id="upload-emails-text"></div>
+    <progress id="upload-mails-progress-bar" hidden="hidden"></progress>
+
+    <div class="content_table">
+        <div class="row_content">
+            <div class="mail_number">#</div>
+            <div class="mail_id">id</div>
+            <div class="mail_uid">uid</div>
+            <div class="mail_subject">subject</div>
+            <div class="mail_text">text</div>
+            <div class="mail_sent_date">sent date</div>
+            <div class="mail_received_date">received date</div>
+            <div class="mail_files">files</div>
+        </div>
+    </div>
+
 </body>
 </html>

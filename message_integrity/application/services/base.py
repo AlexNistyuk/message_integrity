@@ -1,3 +1,5 @@
+import email
+from email.message import Message
 from typing import Self
 
 from aioimaplib import IMAP4_SSL, aioimaplib
@@ -43,3 +45,11 @@ class ImapServiceBase(ImapServiceABC):
             uids.add(uid)
 
         return uids
+
+    async def get_mail_by_uid(self, uid: str) -> Message | None:
+        res, msg = await self.imap_client.uid("fetch", uid, "(RFC822)")
+
+        try:
+            return email.message_from_bytes(msg[1])
+        except IndexError:
+            return

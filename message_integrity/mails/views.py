@@ -23,7 +23,9 @@ class MailWebsocket(AsyncWebsocketConsumer):
         user_id = text_data_json["user_id"]
 
         user_use_case = UserUseCase()
-        await MailUseCase(user_use_case, self.send).check_added_mails(user_id)
+        mail_use_case = MailUseCase(user_use_case, self.send)
+
+        await mail_use_case.check_and_upload_mails(user_id)
 
     async def disconnect(self, close_code):
         pass

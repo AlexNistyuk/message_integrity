@@ -14,3 +14,7 @@ class IMaleRepository(ABC):
     @abstractmethod
     def get_mails_count_by_user_id(self, *args, **kwargs) -> int:
         raise NotImplementedError
+
+    @abstractmethod
+    def create(self, *args, **kwargs) -> int:
+        raise NotImplementedError

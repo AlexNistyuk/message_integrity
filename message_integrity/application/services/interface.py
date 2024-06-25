@@ -18,3 +18,7 @@ class ImapServiceABC(ABC):
     @abstractmethod
     async def get_mails_uids(self, *args, **kwargs) -> set[str]:
         raise NotImplementedError
+
+    @abstractmethod
+    async def get_mail_by_uid(self, *args, **kwargs):
+        raise NotImplementedError

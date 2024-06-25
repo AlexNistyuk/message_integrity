@@ -1,0 +1,47 @@
+.content_table{
+    flex-direction: column;
+    gap: 40px;
+    margin-top: 50px;
+    display: none;
+}
+
+.row_content{
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.mail_number{
+    width: 70px;
+}
+
+.mail_id{
+    width: 70px;
+}
+
+.mail_uid{
+    width: 70px;
+    word-break: break-all;
+}
+
+.mail_subject{
+    width: 400px;
+    word-break: break-all;
+}
+
+.mail_text{
+    width: 400px;
+    word-break: break-all;
+}
+
+.mail_sent_date{
+    width: 200px;
+}
+
+.mail_received_date{
+    width: 200px;
+}
+
+.mail_files{
+    width: 300px;
+}
