@@ -7,20 +7,20 @@ from typing import Callable
 
 from application.factories.imap import ImapFactory
 from application.services.interface import ImapServiceABC
+from application.use_cases.mails.interface import IMailUseCase
 from application.use_cases.users.interface import IUserUseCase
 from infrastructure.repositories.mails.interface import IMaleRepository
 from infrastructure.repositories.mails.mails import MaleRepository
 from users.models import User
 
-# TODO add interface
+from message_integrity.settings import MAIL_GAP
 
 
-class MailUseCase:
+class MailUseCase(IMailUseCase):
     def __init__(self, user_use_case: IUserUseCase, ws_send: Callable) -> None:
         self.user_use_case = user_use_case
         self.ws_send = ws_send
         self.mail_repository: IMaleRepository = MaleRepository()
-        self.mail_gap = 2
 
     async def check_and_upload_mails(self, user_id: int) -> None:
         receiver = await self.user_use_case.get_by_id(user_id)
@@ -50,8 +50,8 @@ class MailUseCase:
         if mails_count_from_db == 0:
             await self.__send_checked_mails(all_mails, read_mails)
 
-        for i in range(ceil(mails_count_from_db / self.mail_gap)):
-            slice_obj = slice(i * self.mail_gap, (i + 1) * self.mail_gap)
+        for i in range(ceil(mails_count_from_db / MAIL_GAP)):
+            slice_obj = slice(i * MAIL_GAP, (i + 1) * MAIL_GAP)
             mails_from_db = await self.mail_repository.get_part(receiver.pk, slice_obj)
 
             async for mail in mails_from_db:
@@ -154,13 +154,7 @@ class MailUseCase:
         except (AttributeError, ValueError):
             received_date = None
 
-        try:
-            subject = decode_header(message["Subject"])[0][0].decode()
-        except AttributeError:
-            subject = message["Subject"]
-        except (UnicodeDecodeError, TypeError):
-            subject = None
-
+        subject = self.__get_text(message["Subject"])
         text = self.__get_message_text(message)
         files = self.__get_message_files(message)
 
@@ -192,6 +186,15 @@ class MailUseCase:
 
         for part in message.walk():
             if part.get_content_disposition() == "attachment":
-                message_files[part.get_filename()] = part.get_payload(decode=True)
+                filename = self.__get_text(part.get_filename())
+                message_files[filename] = part.get_payload(decode=True)
 
         return message_files
+
+    def __get_text(self, text: str) -> str | None:
+        try:
+            return decode_header(text)[0][0].decode()
+        except AttributeError:
+            return text
+        except (UnicodeDecodeError, TypeError):
+            return None

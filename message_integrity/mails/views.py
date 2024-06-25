@@ -1,6 +1,6 @@
 import json
 
-from application.use_cases.mails import MailUseCase
+from application.use_cases.mails.mails import MailUseCase
 from application.use_cases.users.users import UserUseCase
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.shortcuts import render

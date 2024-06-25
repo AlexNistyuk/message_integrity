@@ -20,11 +20,7 @@ class ImapServiceBase(ImapServiceABC):
 
         return self
 
-    async def __aenter__(
-        self,
-    ) -> Self:
-        # TODO catch error while creating connection!
-
+    async def __aenter__(self) -> Self:
         self.imap_client = aioimaplib.IMAP4_SSL(host=self.host)
         await self.imap_client.wait_hello_from_server()
         await self.imap_client.login(self.email, self.password)
