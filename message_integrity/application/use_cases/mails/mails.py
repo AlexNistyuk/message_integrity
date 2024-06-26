@@ -5,6 +5,7 @@ from email.message import Message
 from math import ceil
 from typing import Callable
 
+import aioimaplib.aioimaplib
 from application.factories.imap import ImapFactory
 from application.services.interface import ImapServiceABC
 from application.use_cases.mails.interface import IMailUseCase
@@ -26,14 +27,21 @@ class MailUseCase(IMailUseCase):
         receiver = await self.user_use_case.get_by_id(user_id)
         imap_service = ImapFactory.get_service_by_email_type(receiver.email_type)
 
-        async with imap_service.login(
-            receiver.email, receiver.password
-        ) as imap_service:
-            mails_uids, all_mails_uids_length = await self.__check_mails(
-                receiver, imap_service
-            )
-            await self.__upload_mails(
-                imap_service, receiver, mails_uids, all_mails_uids_length
+        try:
+            async with imap_service.login(
+                receiver.email, receiver.password
+            ) as imap_service:
+                mails_uids, all_mails_uids_length = await self.__check_mails(
+                    receiver, imap_service
+                )
+                await self.__upload_mails(
+                    imap_service, receiver, mails_uids, all_mails_uids_length
+                )
+        except aioimaplib.aioimaplib.Abort:
+            await self.ws_send(
+                text_data=json.dumps(
+                    {"mode": "error", "reason": "Cannot create connection"}
+                )
             )
 
     async def __check_mails(
@@ -197,4 +205,4 @@ class MailUseCase(IMailUseCase):
         except AttributeError:
             return text
         except (UnicodeDecodeError, TypeError):
-            return None
+            return

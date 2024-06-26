@@ -13,13 +13,20 @@ socket.onmessage = function(event) {
         setCheckMode(data)
     } else if (data.mode === "upload"){
         setUploadMode(data)
+    } else if (data.mode === "error"){
+        setErrorMode(data.reason)
     }
 
 };
 
 socket.onerror = function(error) {
-  alert("Ошибка " + error.message);
+    alert("Error " + error.message);
 };
+
+
+function setErrorMode(reason){
+    alert(reason)
+}
 
 
 function setCheckMode(data){
