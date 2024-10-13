@@ -1,0 +1,102 @@
+name: build and push
+on:
+  push:
+    branches:
+      - master
+
+
+jobs:
+  create-tag-and-release:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.increment_version.outputs.tag }}
+    steps:
+      - name: Set up Git
+        run: |
+          git config --global user.email "alex.nistyuk@gmail.com"
+          git config --global user.name "AlexNistyuk"
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get previous tags
+        id: get_tags
+        run: |
+          git fetch --tags
+          tags=$(git tag --sort=-creatordate)
+          previous_tags=($tags)
+          latest_previous_tag=${previous_tags[0]}
+          echo "Latest Previous Tag: $latest_previous_tag"
+          echo "::set-output name=latest_previous_tag::$latest_previous_tag"
+
+
+      - name: Increment version
+        id: increment_version
+        run: |
+          PREVIOUS_TAG=${{ steps.get_tags.outputs.latest_previous_tag }}
+          NEW_VERSION=$(echo $PREVIOUS_TAG | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          echo "New Version: $NEW_VERSION"
+          echo "::set-output name=new_version::$NEW_VERSION"
+          echo "::set-output name=tag::$NEW_VERSION"
+
+      - name: Create tag
+        id: create_tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "${{ env.GITHUB_TOKEN }}"
+          NEW_VERSION=${{ steps.increment_version.outputs.new_version }}
+          git tag -a $NEW_VERSION -m "Version $NEW_VERSION"
+          git push origin $NEW_VERSION
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.increment_version.outputs.new_version }}
+          release_name: Release ${{ steps.increment_version.outputs.new_version }}
+          draft: false
+          prerelease: false
+          body: "Release notes for version ${{ steps.increment_version.outputs.new_version }}"
+#  push_to_registry:
+#    needs: create-tag-and-release
+#    name: Push Docker image to Docker Hub
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out the repo
+#        uses: actions/checkout@v4
+#
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#
+#      - name: Check tag
+#        id: check_tag
+#        run: |
+#          echo "${{ needs.create-tag-and-release.outputs.tag }}"
+#
+#      - name: Extract metadata (tags, labels) for Docker
+#        id: meta
+#        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+#        with:
+#          images: sladowname/${{ secrets.DOCKER_IMAGE }}
+#          tags: ${{ needs.create-tag-and-release.outputs.tag }}
+#
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+#        with:
+#          context: .
+#          file: ./Dockerfile
+#          push: true
+#          tags: sladowname/${{ secrets.DOCKER_IMAGE }}:${{ needs.create-tag-and-release.outputs.tag }}
+#
+#      - name: Update version in server
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USER }}
+#          password: ${{ secrets.SERVER_PASSWORD }}
+#          script: cd /home/dropshop && sed -i '/BACKEND/c\BACKEND=${{ needs.create-tag-and-release.outputs.tag }}' .env && docker compose up -d && docker image prune -a -f
